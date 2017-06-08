@@ -1,0 +1,15 @@
+This is a neural net that built for people who are entry-level coders, to use. It is designed to be easily accessible,
+only requiring easy to make variable changes.
+
+Download both files, and pip install numpy and sklearn. From there, simply change the appropriate variables for file
+locations and adjust the neural net training parameters. 
+
+Most of the variables should be defined in the Neural_Net.py file.
+
+Highlights of this configuration include:
+  - save and re-use previous neural nets
+  - automatic detection of variables
+  - 2 hidden layers of adjustable neurons
+  
+I will be updating the code periodically, so please comment any suggestions / questions 
+and I will get to them as quickly as I can.

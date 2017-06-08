@@ -1,4 +1,4 @@
-import ONN.ONN_Main_Settings as ONN_Main
+import ANN.ANN_Main_Settings as ANN_Main
 
 
 # make sure files are in .csv format and ConcussvsNoConcussTestData
@@ -57,4 +57,4 @@ use_saved_network = [False, '/filepath/.../saved_network.pkl']
 
 # run the neural net
 # returns correct_output_values, results, rounded_results
-ONN_results = ONN_Main.run_ONN(train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, saved_network_name, saved_network_location, use_saved_network, view_NN_training)
+ANN_results = ANN_Main.run_ANN(train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, saved_network_name, saved_network_location, use_saved_network, view_NN_training)

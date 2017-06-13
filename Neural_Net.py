@@ -9,7 +9,10 @@ test_dataset_location = '/filepath/.../test_dataset.csv'
 #CHANGE THESE NUMBERS/FUNCTIONS TO ADJUST THE NEURAL NET
 # neural net settings
 # number of values to be predicted for each row
-size_of_output = 1
+size_of_output = 2
+# number of decimals predictions should be rounded to
+decimal_rounding_for_prediction = 0
+
 # number of neurons within each layer (should be about 1/2 the number of features)
 num_of_neurons = 30
 
@@ -57,4 +60,4 @@ use_saved_network = [False, '/filepath/.../saved_network.pkl']
 
 # run the neural net
 # returns correct_output_values, results, rounded_results
-ANN_results = ANN_Main.run_ANN(train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, saved_network_name, saved_network_location, use_saved_network, view_NN_training)
+ANN_results = ANN_Main.run_ANN(train_dataset_location, test_dataset_location, size_of_output, decimal_rounding_for_prediction, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, saved_network_name, saved_network_location, use_saved_network, view_NN_training)

@@ -10,7 +10,7 @@ from random import shuffle
 import csv
 from sklearn import datasets
 
-def filereader_split_Xy(file, size_of_output):
+def filereader_split_Xy(file, size_of_output, train_vs_test):
     with open(file, 'rU') as myFile:
         reader = csv.reader(myFile, delimiter=',', dialect = csv.excel)
         next(reader, None)
@@ -24,7 +24,11 @@ def filereader_split_Xy(file, size_of_output):
     for row in filecollector:
         temp_row = []
         for value in row:
-            temp_row.append(float(value))
+            if value != '':
+                temp_row.append(float(value))
+            else:
+                temp_row.append("Unknown")
+
         cleaned_dataset.append(temp_row)
 
     X = []
@@ -76,13 +80,14 @@ class NeuralNetwork(object):
         self.max_error = max_error
 
         # MAKE SURE FIRST COLUMN(S) OF DATA FILE ARE THE RESULTS
-        split_file = filereader_split_Xy(train_dataset_location, size_of_output)
-        self.X = split_file[0]
-        self.y = split_file[1]
+        split_training_data = filereader_split_Xy(train_dataset_location, size_of_output, "training")
+        self.X = split_training_data[0]
+        self.y = split_training_data[1]
         self.num_of_features = len(self.X[0])
 
-        self.X_test_data = filereader_split_Xy(test_dataset_location, size_of_output)[0]
-        self.y_test_data = filereader_split_Xy(test_dataset_location, size_of_output)[1]
+        split_test_data = filereader_split_Xy(test_dataset_location, size_of_output, "test")
+        self.X_test_data = split_test_data[0]
+        self.y_test_data = split_test_data[1]
 
     def truncate(self, f, n):
         '''Truncates/pads a float f to n decimal places without rounding'''
@@ -119,7 +124,7 @@ class NeuralNetwork(object):
 
         return settings
 
-    def train_and_predict(self, X, y, X_test_data, y_test_data, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training):
+    def train_and_predict(self, X, y, X_test_data, y_test_data, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training, decimal_rounding_for_prediction):
 
         if use_saved_network[0] == True:
             settings = NeuralNetwork.nerual_net_basic_settings(self)
@@ -281,11 +286,11 @@ class NeuralNetwork(object):
             rounded_results = []
             for value_group in results:
                 if self.size_of_output == 1:
-                    rounded_results.append([round(value_group)])
+                    rounded_results.append([round(value_group, decimal_rounding_for_prediction)])
                 else:
                     grouping = []
                     for value in value_group:
-                        grouping.append(round(value))
+                        grouping.append(round(value, decimal_rounding_for_prediction))
                     rounded_results.append(grouping)
             print ''
             print 'these are the rounded predictions'
@@ -308,13 +313,13 @@ class NeuralNetwork(object):
 
 
             perc_accuracy = (sum(accuracy) / float(len(accuracy))) * 100
-            perc_accuracy = self.truncate(perc_accuracy, 1)
+            perc_accuracy = self.truncate(perc_accuracy, decimal_rounding_for_prediction)
 
             print 'percentage accuracy: ' + str(perc_accuracy) + "%"
 
             return correct_output_values, results, rounded_results
 
-def run_ANN(train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training):
+def run_ANN(train_dataset_location, test_dataset_location, size_of_output, decimal_rounding_for_prediction, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training):
     NN = NeuralNetwork(train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error)
     NN.prep_data(NN.X, NN.y)
-    return NN.train_and_predict(NN.X, NN.y, NN.X_test_data, NN.y_test_data, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training)
+    return NN.train_and_predict(NN.X, NN.y, NN.X_test_data, NN.y_test_data, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training, decimal_rounding_for_prediction)

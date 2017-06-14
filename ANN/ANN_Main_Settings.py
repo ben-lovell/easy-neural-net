@@ -163,14 +163,22 @@ class NeuralNetwork(object):
             print (rounded_results)
 
             print ('')
-            accuracy = []
-            for (original, NNpred) in zip(original_results, rounded_results):
-                if original[0] != NNpred:
-                    accuracy.append(0)
-                else:
-                    accuracy.append(1)
 
-            perc_accuracy = round((sum(accuracy)/float(len(accuracy)))*100, decimal_rounding_for_prediction)
+            accuracy = []
+            for (original_group, NNpred_group) in zip(original_results, rounded_results):
+                if len(original_group) == 1:
+                    if original_group[0] < NNpred_group[0]:
+                        accuracy.append(original_group[0] / NNpred_group[0])
+                    else:
+                        accuracy.append( NNpred_group[0] / original_group[0])
+                else:
+                    for (original, NNpred) in zip(original_group, NNpred_group):
+                        if original_group[0] < NNpred_group[0]:
+                            accuracy.append(original_group[0] / NNpred_group[0])
+                        else:
+                            accuracy.append( NNpred_group[0] / original_group[0])
+
+            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), decimal_rounding_for_prediction)
 
             print ('percentage accuracy: ' + str(perc_accuracy) + "%")
 
@@ -283,19 +291,18 @@ class NeuralNetwork(object):
             accuracy = []
             for (original_group, NNpred_group) in zip(original_results, rounded_results):
                 if len(original_group) == 1:
-                    if original_group[0] != NNpred_group[0]:
-                        accuracy.append(0)
+                    if original_group[0] < NNpred_group[0]:
+                        accuracy.append(original_group[0] / NNpred_group[0])
                     else:
-                        accuracy.append(1)
+                        accuracy.append( NNpred_group[0] / original_group[0])
                 else:
                     for (original, NNpred) in zip(original_group, NNpred_group):
-                        if original != NNpred:
-                            accuracy.append(0)
+                        if original_group[0] < NNpred_group[0]:
+                            accuracy.append(original_group[0] / NNpred_group[0])
                         else:
-                            accuracy.append(1)
+                            accuracy.append( NNpred_group[0] / original_group[0])
 
-
-            perc_accuracy = round((sum(accuracy) / float(len(accuracy))) * 100, decimal_rounding_for_prediction)
+            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), 2) * 100
 
             print ('percentage accuracy: ' + str(perc_accuracy) + "%")
 

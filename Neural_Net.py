@@ -14,7 +14,7 @@ size_of_output = 2
 decimal_rounding_for_prediction = 0
 
 # number of neurons within each layer (should be about 1/2 the number of features)
-num_of_neurons = 30
+num_of_neurons = 2
 
 # sum_squared_error, binary_cross_entropy_cost, hellinger_distance, cross_entropy_cost
 cost_function = "sum_squared_error"
@@ -28,7 +28,7 @@ activation_function = "linear_function"
 
 # number of training iterations OR train until error rate (whichever  comes first)
 # set max_iterations to '' to only train until error rate
-max_iterations = 1000
+max_iterations = 5000
 max_error = 1e-3
 
 # resilient backpropagation or backpropagation
@@ -38,12 +38,12 @@ training_function = "backpropagation"
 weight_step_min = 0.0
 weight_step_max = 50
 learn_min = 0.25
-learn_max = 1.75
+learn_max = 1.5
 start_step = 0.5
 
 # parameters for backpropogation
-learning_rate = 0.70
-momentum_factor = 0.5
+learning_rate = 0.50
+momentum_factor = 0.2
 hidden_layer_dropout = 0.1
 input_layer_dropout = 0.0
 

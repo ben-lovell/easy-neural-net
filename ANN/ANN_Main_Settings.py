@@ -1,10 +1,10 @@
-from preprocessing import construct_preprocessor, standarize, replace_nan, whiten
-from activation_functions import tanh_function, sigmoid_function, elliot_function, softsign_function, symmetric_elliot_function, linear_function
-from learning_algorithms  import resilient_backpropagation, backpropagation
-from cost_functions import sum_squared_error, binary_cross_entropy_cost, hellinger_distance, cross_entropy_cost
-from data_structures import Instance
-from neuralnet import NeuralNet
-from tools import print_test
+from ANN.preprocessing import construct_preprocessor, standarize, replace_nan, whiten
+from ANN.activation_functions import tanh_function, sigmoid_function, elliot_function, softsign_function, symmetric_elliot_function, linear_function
+from ANN.learning_algorithms  import resilient_backpropagation, backpropagation
+from ANN.cost_functions import sum_squared_error, binary_cross_entropy_cost, hellinger_distance, cross_entropy_cost
+from ANN.data_structures import Instance
+from ANN.neuralnet import NeuralNet
+from ANN.tools import print_test
 from sklearn import model_selection #cross_validation
 from random import shuffle
 import csv
@@ -138,10 +138,10 @@ class NeuralNetwork(object):
                     # Instance( [input values] )
                     Instance( Xrow ) for Xrow in X_test_data
                 ]
-            print ''
-            print 'these are the original predicted results'
-            print [( yrow ) for yrow in y_test_data] #test_set_y[7],test_set_y[65],test_set_y[20]
-            print ''
+            print ('')
+            print ('these are the original predicted results')
+            print ([( yrow ) for yrow in y_test_data]) #test_set_y[7],test_set_y[65],test_set_y[20]
+            print ('')
 
             original_results = [( yrow ) for yrow in y_test_data]
 
@@ -150,19 +150,19 @@ class NeuralNetwork(object):
             predict_dataset = preprocessor( predict_dataset )
 
             # feed the instances to the network
-            print 'these are the neural net predictions'
+            print ('these are the neural net predictions')
             results =  network.predict( predict_dataset ) # return a 2D NumPy array [n_samples, n_outputs]
-            print results
+            print (results)
 
             rounded_results = []
             for value in results:
                 rounded_results.append(int(round(value)))
 
-            print ''
-            print 'these are the rounded results'
-            print rounded_results
+            print ('')
+            print ('these are the rounded results')
+            print (rounded_results)
 
-            print ''
+            print ('')
             accuracy = []
             for (original, NNpred) in zip(original_results, rounded_results):
                 if original[0] != NNpred:
@@ -172,7 +172,7 @@ class NeuralNetwork(object):
 
             perc_accuracy = round((sum(accuracy)/float(len(accuracy)))*100, decimal_rounding_for_prediction)
 
-            print 'percentage accuracy: ' + str(perc_accuracy) + "%"
+            print ('percentage accuracy: ' + str(perc_accuracy) + "%")
 
         else:
             # Initialize the neural network
@@ -250,10 +250,10 @@ class NeuralNetwork(object):
                 ]
 
             correct_output_values = [( yrow[0 : self.size_of_output] ) for yrow in y_test_data]
-            print ''
-            print 'these are the correct output values'
-            print correct_output_values
-            print ''
+            print ('')
+            print ('these are the correct output values')
+            print (correct_output_values)
+            print ('')
 
             original_results = [( yrow[0 : self.size_of_output] ) for yrow in y_test_data]
 
@@ -262,9 +262,9 @@ class NeuralNetwork(object):
             predict_dataset = preprocessor( predict_dataset )
 
             # feed the instances to the network
-            print 'these are the neural net predictions'
+            print ('these are the neural net predictions')
             results =  network.predict( predict_dataset ) # return a 2D NumPy array [n_samples, n_outputs]
-            print [result[0 : self.size_of_output] for result in results]
+            print ([result[0 : self.size_of_output] for result in results])
 
             rounded_results = []
             for value_group in results:
@@ -275,10 +275,10 @@ class NeuralNetwork(object):
                     for value in value_group:
                         grouping.append(round(value, decimal_rounding_for_prediction))
                     rounded_results.append(grouping)
-            print ''
-            print 'these are the rounded predictions'
-            print rounded_results
-            print ''
+            print ('')
+            print ('these are the rounded predictions')
+            print (rounded_results)
+            print ('')
 
             accuracy = []
             for (original_group, NNpred_group) in zip(original_results, rounded_results):
@@ -297,7 +297,7 @@ class NeuralNetwork(object):
 
             perc_accuracy = round((sum(accuracy) / float(len(accuracy))) * 100, decimal_rounding_for_prediction)
 
-            print 'percentage accuracy: ' + str(perc_accuracy) + "%"
+            print ('percentage accuracy: ' + str(perc_accuracy) + "%")
 
             return correct_output_values, results, rounded_results
 

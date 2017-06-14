@@ -9,12 +9,12 @@ test_dataset_location = '/filepath/.../test_dataset.csv'
 #CHANGE THESE NUMBERS/FUNCTIONS TO ADJUST THE NEURAL NET
 # neural net settings
 # number of values to be predicted for each row
-size_of_output = 2
+size_of_output = 1
 # number of decimals predictions should be rounded to
-decimal_rounding_for_prediction = 0
+decimal_rounding_for_prediction = 1
 
 # number of neurons within each layer (should be about 1/2 the number of features)
-num_of_neurons = 2
+num_of_neurons = 10
 
 # sum_squared_error, binary_cross_entropy_cost, hellinger_distance, cross_entropy_cost
 cost_function = "sum_squared_error"
@@ -28,7 +28,7 @@ activation_function = "linear_function"
 
 # number of training iterations OR train until error rate (whichever  comes first)
 # set max_iterations to '' to only train until error rate
-max_iterations = 5000
+max_iterations = 1000
 max_error = 1e-3
 
 # resilient backpropagation or backpropagation

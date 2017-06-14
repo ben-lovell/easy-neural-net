@@ -9,6 +9,7 @@ from sklearn import model_selection #cross_validation
 from random import shuffle
 import csv
 from sklearn import datasets
+import numpy as np
 
 def filereader_split_Xy(file, size_of_output, train_vs_test):
     with open(file, 'rU') as myFile:
@@ -164,23 +165,29 @@ class NeuralNetwork(object):
 
             print ('')
 
-            accuracy = []
+            accuracy_percent = []
+            accuracy_deviation = []
             for (original_group, NNpred_group) in zip(original_results, rounded_results):
                 if len(original_group) == 1:
                     if original_group[0] < NNpred_group[0]:
-                        accuracy.append(original_group[0] / NNpred_group[0])
+                        accuracy_percent.append(original_group[0] / NNpred_group[0])
+                        accuracy_deviation.append( NNpred_group[0] - original_group[0])
                     else:
-                        accuracy.append( NNpred_group[0] / original_group[0])
+                        accuracy_percent.append( NNpred_group[0] / original_group[0])
+                        accuracy_deviation.append(original_group[0] - NNpred_group[0])
                 else:
                     for (original, NNpred) in zip(original_group, NNpred_group):
                         if original_group[0] < NNpred_group[0]:
-                            accuracy.append(original_group[0] / NNpred_group[0])
+                            accuracy_percent.append(original_group[0] / NNpred_group[0])
+                            accuracy_deviation.append( NNpred_group[0] - original_group[0])
                         else:
-                            accuracy.append( NNpred_group[0] / original_group[0])
+                            accuracy_percent.append( NNpred_group[0] / original_group[0])
+                            accuracy_deviation.append(original_group[0] - NNpred_group[0])
 
-            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), 3) * 100
+            perc_accuracy = round((sum(accuracy_percent) / float(len(accuracy_percent))), 3) * 100
 
             print ('percentage accuracy: ' + str(perc_accuracy) + "%")
+            print ("Average deviation: " + str(round(np.average(accuracy_deviation), decimal_rounding_for_prediction)))
 
         else:
             # Initialize the neural network
@@ -288,23 +295,29 @@ class NeuralNetwork(object):
             print (rounded_results)
             print ('')
 
-            accuracy = []
+            accuracy_percent = []
+            accuracy_deviation = []
             for (original_group, NNpred_group) in zip(original_results, rounded_results):
                 if len(original_group) == 1:
                     if original_group[0] < NNpred_group[0]:
-                        accuracy.append(original_group[0] / NNpred_group[0])
+                        accuracy_percent.append(original_group[0] / NNpred_group[0])
+                        accuracy_deviation.append( NNpred_group[0] - original_group[0])
                     else:
-                        accuracy.append( NNpred_group[0] / original_group[0])
+                        accuracy_percent.append( NNpred_group[0] / original_group[0])
+                        accuracy_deviation.append(original_group[0] - NNpred_group[0])
                 else:
                     for (original, NNpred) in zip(original_group, NNpred_group):
                         if original_group[0] < NNpred_group[0]:
-                            accuracy.append(original_group[0] / NNpred_group[0])
+                            accuracy_percent.append(original_group[0] / NNpred_group[0])
+                            accuracy_deviation.append( NNpred_group[0] - original_group[0])
                         else:
-                            accuracy.append( NNpred_group[0] / original_group[0])
+                            accuracy_percent.append( NNpred_group[0] / original_group[0])
+                            accuracy_deviation.append(original_group[0] - NNpred_group[0])
 
-            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), 3) * 100
+            perc_accuracy = round((sum(accuracy_percent) / float(len(accuracy_percent))), 3) * 100
 
             print ('percentage accuracy: ' + str(perc_accuracy) + "%")
+            print ("Average deviation: " + str(round(np.average(accuracy_deviation), decimal_rounding_for_prediction)))
 
             return correct_output_values, results, rounded_results
 

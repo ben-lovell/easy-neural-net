@@ -207,7 +207,7 @@ def resilient_backpropagation(network, trainingset, testset, cost_function, ERRO
             # Show the current training status
             print ("[training] Current error:", error, "\tEpoch:", epoch)
 
-    print ("[training] Finished:"
+    print ("[training] Finished:")
     print ("[training]   Converged to error bound (%.4g) with error %.4g." % ( ERROR_LIMIT, error ))
     print ("[training]   Measured quality: %.4g" % network.measure_quality( training_data, training_targets, cost_function ))
     print ("[training]   Trained for %d epochs." % epoch)

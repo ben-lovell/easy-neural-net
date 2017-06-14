@@ -4,7 +4,7 @@ from ANN.cost_functions import softmax_neg_loss
 import numpy as np
 import collections
 import random
-import math
+import math, datetime
 
 all = ["backpropagation", "resilient_backpropagation"]
 
@@ -40,6 +40,7 @@ def backpropagation(network, trainingset, testset, cost_function, evaluation_fun
     momentum                   = collections.defaultdict( int )
 
     epoch                      = 0
+    start_time                 = datetime.datetime.now()
     while error > ERROR_LIMIT and epoch < max_iterations:
         epoch += 1
 
@@ -84,10 +85,12 @@ def backpropagation(network, trainingset, testset, cost_function, evaluation_fun
             #end weight adjustment loop
 
         error = calculate_print_error(network.update( test_data ), test_targets )
+        time_estimate = ((datetime.datetime.now() - start_time).total_seconds())
+        start_time = datetime.datetime.now()
 
         if epoch%print_rate==0:
             # Show the current training status
-            print ("[training] Current error:", error, "\tEpoch:", epoch)
+            print ("[training] Current error: " + str(error) + " Epoch: " + str(epoch) + " Seconds remaining: " + str(time_estimate * (max_iterations - epoch)))
 
     print ("[training] Finished:")
     print ("[training]   Converged to error bound (%.4g) with error %.4g." % ( ERROR_LIMIT, error ))
@@ -139,6 +142,7 @@ def resilient_backpropagation(network, trainingset, testset, cost_function, ERRO
     n_samples                  = float(training_data.shape[0])
     layer_indexes              = range( len(network.layers) )[::-1] # reversed
     epoch                      = 0
+    start_time                 = datetime.datetime.now()
 
     while error > ERROR_LIMIT and epoch < max_iterations:
         epoch       += 1
@@ -203,9 +207,12 @@ def resilient_backpropagation(network, trainingset, testset, cost_function, ERRO
         delta                      = cost_derivative * derivatives[-1]
         error                      = cost_function(network.update( test_data ), test_targets )
 
+
+        time_estimate = ((datetime.datetime.now() - start_time).total_seconds())
+        start_time = datetime.datetime.now()
         if epoch%print_rate==0:
             # Show the current training status
-            print ("[training] Current error:", error, "\tEpoch:", epoch)
+            print ("[training] Current error: " + str(error) + " Epoch: " + str(epoch) + " Seconds remaining: " + str(time_estimate * (max_iterations - epoch)))
 
     print ("[training] Finished:")
     print ("[training]   Converged to error bound (%.4g) with error %.4g." % ( ERROR_LIMIT, error ))

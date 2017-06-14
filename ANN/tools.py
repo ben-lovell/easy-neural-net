@@ -15,11 +15,11 @@ def print_test( network, testset, cost_function ):
     out                        = input_signals[-1]
     error                      = cost_function(out, test_targets )
 
-    print "[testing] Network error: %.4g" % error
-    print "[testing] Network results:"
-    print "[testing]   input\tresult\ttarget"
+    print ("[testing] Network error: %.4g" % error)
+    print ("[testing] Network results:")
+    print ("[testing]   input\tresult\ttarget")
     for entry, result, target in zip(test_data, out, test_targets):
-        print "[testing]   %s\t%s\t%s" % tuple(map(str, [entry, result, target]))
+        print ("[testing]   %s\t%s\t%s" % tuple(map(str, [entry, result, target])))
 #end
 
 
@@ -46,5 +46,5 @@ def confirm( promt='Do you want to continue?' ):
         elif ans.lower() in ['n','no']:
             return False
         else:
-            print "Please enter y or n."
+            print ("Please enter y or n.")
 #end

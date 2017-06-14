@@ -1,6 +1,6 @@
-from tools import dropout, add_bias, confirm
-from activation_functions import softmax_function
-from cost_functions import softmax_neg_loss
+from ANN.tools import dropout, add_bias, confirm
+from ANN.activation_functions import softmax_function
+from ANN.cost_functions import softmax_neg_loss
 import numpy as np
 import collections
 import random
@@ -87,12 +87,12 @@ def backpropagation(network, trainingset, testset, cost_function, evaluation_fun
 
         if epoch%print_rate==0:
             # Show the current training status
-            print "[training] Current error:", error, "\tEpoch:", epoch
+            print ("[training] Current error:", error, "\tEpoch:", epoch)
 
-    print "[training] Finished:"
-    print "[training]   Converged to error bound (%.4g) with error %.4g." % ( ERROR_LIMIT, error )
-    print "[training]   Measured quality: %.4g" % network.measure_quality( training_data, training_targets, cost_function )
-    print "[training]   Trained for %d epochs." % epoch
+    print ("[training] Finished:")
+    print ("[training]   Converged to error bound (%.4g) with error %.4g." % ( ERROR_LIMIT, error ))
+    print ("[training]   Measured quality: %.4g" % network.measure_quality( training_data, training_targets, cost_function ))
+    print ("[training]   Trained for %d epochs." % epoch)
 
     if save_trained_network == True:
         network.save_network_to_file(network_name, saved_network_location)
@@ -205,12 +205,12 @@ def resilient_backpropagation(network, trainingset, testset, cost_function, ERRO
 
         if epoch%print_rate==0:
             # Show the current training status
-            print "[training] Current error:", error, "\tEpoch:", epoch
+            print ("[training] Current error:", error, "\tEpoch:", epoch)
 
-    print "[training] Finished:"
-    print "[training]   Converged to error bound (%.4g) with error %.4g." % ( ERROR_LIMIT, error )
-    print "[training]   Measured quality: %.4g" % network.measure_quality( training_data, training_targets, cost_function )
-    print "[training]   Trained for %d epochs." % epoch
+    print ("[training] Finished:"
+    print ("[training]   Converged to error bound (%.4g) with error %.4g." % ( ERROR_LIMIT, error ))
+    print ("[training]   Measured quality: %.4g" % network.measure_quality( training_data, training_targets, cost_function ))
+    print ("[training]   Trained for %d epochs." % epoch)
 
     if save_trained_network == True:
         network.save_network_to_file(network_name, saved_network_location)

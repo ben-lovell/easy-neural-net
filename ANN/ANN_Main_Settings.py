@@ -89,14 +89,6 @@ class NeuralNetwork(object):
         self.X_test_data = split_test_data[0]
         self.y_test_data = split_test_data[1]
 
-    def truncate(self, f, n):
-        '''Truncates/pads a float f to n decimal places without rounding'''
-        s = '{}'.format(f)
-        if 'e' in s or 'E' in s:
-            return '{0:.{1}f}'.format(f, n)
-        i, p, d = s.partition('.')
-        return '.'.join([i, (d+'0'*n)[:n]])
-
     def prep_data(self, X, y):
         # Training sets
             # Instance( [input signals], [target values] )
@@ -178,16 +170,7 @@ class NeuralNetwork(object):
                 else:
                     accuracy.append(1)
 
-            def truncate(f, n):
-                '''Truncates/pads a float f to n decimal places without rounding'''
-                s = '{}'.format(f)
-                if 'e' in s or 'E' in s:
-                    return '{0:.{1}f}'.format(f, n)
-                i, p, d = s.partition('.')
-                return '.'.join([i, (d+'0'*n)[:n]])
-
-            perc_accuracy = (sum(accuracy)/float(len(accuracy)))*100
-            perc_accuracy = truncate(perc_accuracy,1)
+            perc_accuracy = round((sum(accuracy)/float(len(accuracy)))*100, decimal_rounding_for_prediction)
 
             print 'percentage accuracy: ' + str(perc_accuracy) + "%"
 
@@ -312,8 +295,7 @@ class NeuralNetwork(object):
                             accuracy.append(1)
 
 
-            perc_accuracy = (sum(accuracy) / float(len(accuracy))) * 100
-            perc_accuracy = self.truncate(perc_accuracy, decimal_rounding_for_prediction)
+            perc_accuracy = round((sum(accuracy) / float(len(accuracy))) * 100, decimal_rounding_for_prediction)
 
             print 'percentage accuracy: ' + str(perc_accuracy) + "%"
 

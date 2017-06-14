@@ -1,4 +1,4 @@
-from preprocessing import *
+from ANN.preprocessing import *
 import numpy as np
 
 class Instance:
@@ -6,7 +6,7 @@ class Instance:
     # pair in our training set.
     def __init__(self, features, target = None ):
         self.features = np.array(features)
-        
+
         if target != None:
             self.targets  = np.array(target)
         else:

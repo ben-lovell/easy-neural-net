@@ -178,7 +178,7 @@ class NeuralNetwork(object):
                         else:
                             accuracy.append( NNpred_group[0] / original_group[0])
 
-            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), decimal_rounding_for_prediction)
+            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), 3) * 100
 
             print ('percentage accuracy: ' + str(perc_accuracy) + "%")
 
@@ -302,7 +302,7 @@ class NeuralNetwork(object):
                         else:
                             accuracy.append( NNpred_group[0] / original_group[0])
 
-            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), 2) * 100
+            perc_accuracy = round((sum(accuracy) / float(len(accuracy))), 3) * 100
 
             print ('percentage accuracy: ' + str(perc_accuracy) + "%")
 

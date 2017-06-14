@@ -1,7 +1,6 @@
-from activation_functions import softmax_function
-from cost_functions import softmax_neg_loss
-
-from tools import add_bias, confirm
+from ANN.activation_functions import softmax_function
+from ANN.cost_functions import softmax_neg_loss
+from ANN.tools import add_bias, confirm
 import numpy as np
 
 default_settings = {
@@ -133,7 +132,7 @@ class NeuralNet:
         perturbed               = np.zeros( initial_weights.shape )
         n_samples               = float(training_data.shape[0])
 
-        print "[gradient check] Running gradient check..."
+        print ("[gradient check] Running gradient check...")
 
         for i in xrange( self.n_weights ):
             perturbed[i]        = epsilon
@@ -153,10 +152,10 @@ class NeuralNet:
         ratio                   = np.linalg.norm(analytic_gradient - numeric_gradient) / np.linalg.norm(analytic_gradient + numeric_gradient)
 
         if not ratio < 1e-6:
-            print "[gradient check] WARNING: The numeric gradient check failed! Analytical gradient differed by %g from the numerical." % ratio
-            print "[gradient check] Exiting."
+            print ("[gradient check] WARNING: The numeric gradient check failed! Analytical gradient differed by %g from the numerical." % ratio)
+            print ("[gradient check] Exiting.")
         else:
-            print "[gradient check] Passed!"
+            print ("[gradient check] Passed!")
 
         return ratio
     #end

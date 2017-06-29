@@ -5,11 +5,11 @@ from ANN.cost_functions import sum_squared_error, binary_cross_entropy_cost, hel
 from ANN.data_structures import Instance
 from ANN.neuralnet import NeuralNet
 from ANN.tools import print_test
+from ANN.final_printout_analysis import error_calculations, round_results
 from sklearn import model_selection #cross_validation
 from random import shuffle
 import csv
 from sklearn import datasets
-import numpy as np
 
 def filereader_split_Xy(file, size_of_output, train_vs_test):
     with open(file, 'rU') as myFile:
@@ -69,7 +69,7 @@ def interpret_text(text):
 
 class NeuralNetwork(object):
 
-    def __init__(self, train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error):
+    def __init__(self, train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, start_step, learn_max, learn_min, learning_rate, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training, decimal_rounding_for_prediction):
         self.train_dataset_location = train_dataset_location
         self.size_of_output = size_of_output
         self.num_of_neurons = num_of_neurons
@@ -77,8 +77,29 @@ class NeuralNetwork(object):
         self.neuron_function = interpret_text(neuron_function)
         self.activation_function = interpret_text(activation_function)
         self.training_function = training_function
+
+        # General training function parameters
         self.max_iterations = max_iterations
         self.max_error = max_error
+        self.save_trained_network = save_trained_network
+        self.network_name = network_name
+        self.saved_network_location = saved_network_location
+        self.use_saved_network = use_saved_network
+        self.view_NN_training = view_NN_training
+        self.decimal_rounding_for_prediction = decimal_rounding_for_prediction
+
+        # Backpropagation training parameters
+        self.learning_rate = learning_rate
+        self.momentum_factor = momentum_factor
+        self.hidden_layer_dropout = hidden_layer_dropout
+        self.input_layer_dropout = input_layer_dropout
+
+        # Resilient backpropagation training parameters
+        self.weight_step_min = weight_step_min
+        self.weight_step_max = weight_step_max
+        self.start_step = start_step
+        self.learn_max = learn_max
+        self.learn_min = learn_min
 
         # MAKE SURE FIRST COLUMN(S) OF DATA FILE ARE THE RESULTS
         split_training_data = filereader_split_Xy(train_dataset_location, size_of_output, "training")
@@ -117,211 +138,111 @@ class NeuralNetwork(object):
 
         return settings
 
-    def train_and_predict(self, X, y, X_test_data, y_test_data, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training, decimal_rounding_for_prediction):
+    def train_resilient_backpropagation(self, network, prep_data):
+        resilient_backpropagation(
+                network,
+                prep_data[2],                                   # specify the training set
+                prep_data[3],                                   # specify the test set
+                self.cost_function,                             # specify the cost function to calculate error
+                ERROR_LIMIT          = self.max_error,          # define an acceptable error limit
+                max_iterations      = (self.max_iterations),    # continues until the error limit is reach if this argument is skipped
 
-        if use_saved_network[0] == True:
-            settings = NeuralNetwork.nerual_net_basic_settings(self)
+                # optional parameters
+                weight_step_max      = self.weight_step_max,
+                weight_step_min      = self.weight_step_min,
+                start_step           = self.start_step,
+                learn_max            = self.learn_max,
+                learn_min            = self.learn_min,
+                save_trained_network = self.save_trained_network,    # Whether to write the trained weights to disk
+                saved_network_location = self.saved_network_location,
+                network_name         = self.network_name
+            )
 
-            network = NeuralNet.load_network_from_file( use_saved_network[1] )
+    def train_backpropagation(self, network, prep_data):
+        backpropagation(
+                network,                                        # the network to train
+                prep_data[2],                                   # specify the training set
+                prep_data[3],                                   # specify the test set
+                self.cost_function,                             # specify the cost function to calculate error
+                ERROR_LIMIT          = self.max_error,          # define an acceptable error limit
+                max_iterations       = (self.max_iterations),     # continues until the error limit is reach if this argument is skipped
 
-            # If you used a preprocessor during the training phase, the
-            # preprocessor must also be used on the data used during prediction.
+                # optional parameters
+                learning_rate        = self.learning_rate,           # learning rate
+                momentum_factor      = self.momentum_factor,         # momentum
+                input_layer_dropout  = self.input_layer_dropout,     # dropout fraction of the input layer
+                hidden_layer_dropout = self.hidden_layer_dropout,    # dropout fraction in all hidden layers
+                save_trained_network = self.save_trained_network,    # Whether to write the trained weights to disk
+                saved_network_location = self.saved_network_location,
+                network_name         = self.network_name
+            )
 
-            # MAKE SURE FIRST COLUMN OF DATA FILE IS CONCUSSED (1) OR NOT CONCUSSED (0)
+    def train_neural_net(self):
+        # Initialize the neural network
+        settings = NeuralNetwork.nerual_net_basic_settings(self)
 
-            combine_lists = list(zip(X_test_data, y_test_data))
+        #read a new network
+        network     = NeuralNet( settings )
+        prep_data = NeuralNetwork.prep_data(self, self.X, self.y)
 
-            shuffle(combine_lists)
+        # Perform a numerical gradient check
+        network.check_gradient( prep_data[2], self.cost_function )
 
-            X_test_data, y_test_data = zip(*combine_lists)
+        # select training function and train
+        if self.training_function == "resilient backpropagation":
+            self.train_resilient_backpropagation(network, prep_data)
+        elif self.training_function == "backpropagation":
+            self.train_backpropagation(network, prep_data)
 
-            predict_dataset = [
-                    # Instance( [input values] )
-                    Instance( Xrow ) for Xrow in X_test_data
-                ]
-            print ('')
-            print ('these are the original predicted results')
-            print ([( yrow ) for yrow in y_test_data]) #test_set_y[7],test_set_y[65],test_set_y[20]
-            print ('')
+        if self.view_NN_training == True:
+            print_test( network, prep_data[2], self.cost_function )
 
-            original_results = [( yrow ) for yrow in y_test_data]
+        return network
 
-            # preprocess the dataset
-            preprocessor    = construct_preprocessor( predict_dataset, [replace_nan, standarize] )
-            predict_dataset = preprocessor( predict_dataset )
+    def predict_output_values(self, network):
 
-            # feed the instances to the network
-            print ('these are the neural net predictions')
-            results =  network.predict( predict_dataset ) # return a 2D NumPy array [n_samples, n_outputs]
-            print (results)
+        # If you used a preprocessor during the training phase, the
+        # preprocessor must also be used on the data used during prediction.
 
-            rounded_results = []
-            for value in results:
-                rounded_results.append(int(round(value)))
+        combine_lists = list(zip(self.X_test_data, self.y_test_data))
 
-            print ('')
-            print ('these are the rounded results')
-            print (rounded_results)
+        shuffle(combine_lists)
 
-            print ('')
+        self.X_test_data, self.y_test_data = zip(*combine_lists)
 
-            accuracy_percent = []
-            accuracy_deviation = []
-            for (original_group, NNpred_group) in zip(original_results, rounded_results):
-                if len(original_group) == 1:
-                    if original_group[0] < NNpred_group[0]:
-                        accuracy_percent.append(original_group[0] / NNpred_group[0])
-                        accuracy_deviation.append( NNpred_group[0] - original_group[0])
-                    else:
-                        accuracy_percent.append( NNpred_group[0] / original_group[0])
-                        accuracy_deviation.append(original_group[0] - NNpred_group[0])
-                else:
-                    for (original, NNpred) in zip(original_group, NNpred_group):
-                        if original_group[0] < NNpred_group[0]:
-                            accuracy_percent.append(original_group[0] / NNpred_group[0])
-                            accuracy_deviation.append( NNpred_group[0] - original_group[0])
-                        else:
-                            accuracy_percent.append( NNpred_group[0] / original_group[0])
-                            accuracy_deviation.append(original_group[0] - NNpred_group[0])
+        predict_dataset = [
+                # Instance( [input values] )
+                Instance( Xrow ) for Xrow in self.X_test_data
+            ]
 
-            perc_accuracy = round((sum(accuracy_percent) / float(len(accuracy_percent))), 3) * 100
+        correct_output_values = [( yrow[0 : self.size_of_output] ) for yrow in self.y_test_data]
+        print ('')
+        print ('these are the correct output values')
+        print (correct_output_values)
+        print ('')
 
-            print ('percentage accuracy: ' + str(perc_accuracy) + "%")
-            print ("Average deviation: " + str(round(np.average(accuracy_deviation), decimal_rounding_for_prediction)))
+        original_results = [( yrow[0 : self.size_of_output] ) for yrow in self.y_test_data]
 
-        else:
-            # Initialize the neural network
-            # read old network data
-            settings = NeuralNetwork.nerual_net_basic_settings(self)
+        # preprocess the dataset
+        preprocessor    = construct_preprocessor( predict_dataset, [replace_nan, standarize] )
+        predict_dataset = preprocessor( predict_dataset )
 
+        # feed the instances to the network
+        print ('these are the neural net predictions')
+        results =  network.predict( predict_dataset ) # return a 2D NumPy array [n_samples, n_outputs]
+        print ([result[0 : self.size_of_output] for result in results])
 
-            #read a new network
-            network     = NeuralNet( settings )
+        rounded_results = round_results(results, self.size_of_output, self.decimal_rounding_for_prediction)
 
-            prep_data = NeuralNetwork.prep_data(self, X, y)
-            # Perform a numerical gradient check
-            network.check_gradient( prep_data[2], self.cost_function )
+        error_calculations(original_results, rounded_results, self.decimal_rounding_for_prediction)
 
-            def train_resilient_backpropagation():
-                resilient_backpropagation(
-                        network,
-                        prep_data[2],                                   # specify the training set
-                        prep_data[3],                                   # specify the test set
-                        self.cost_function,                             # specify the cost function to calculate error
-                        ERROR_LIMIT          = self.max_error,          # define an acceptable error limit
-                        max_iterations      = (self.max_iterations),    # continues until the error limit is reach if this argument is skipped
-
-                        # optional parameters
-                        weight_step_max      = weight_step_max,
-                        weight_step_min      = weight_step_min,
-                        start_step           = start_step,
-                        learn_max            = learn_max,
-                        learn_min            = learn_min,
-                        save_trained_network = save_trained_network,    # Whether to write the trained weights to disk
-                        saved_network_location = saved_network_location,
-                        network_name         = network_name
-                    )
-
-            def train_backpropagation():
-                backpropagation(
-                        network,                                        # the network to train
-                        prep_data[2],                                   # specify the training set
-                        prep_data[3],                                   # specify the test set
-                        self.cost_function,                             # specify the cost function to calculate error
-                        ERROR_LIMIT          = self.max_error,          # define an acceptable error limit
-                        max_iterations       = (self.max_iterations),     # continues until the error limit is reach if this argument is skipped
-
-                        # optional parameters
-                        learning_rate        = learning_rate,           # learning rate
-                        momentum_factor      = momentum_factor,         # momentum
-                        input_layer_dropout  = input_layer_dropout,     # dropout fraction of the input layer
-                        hidden_layer_dropout = hidden_layer_dropout,    # dropout fraction in all hidden layers
-                        save_trained_network = save_trained_network,    # Whether to write the trained weights to disk
-                        saved_network_location = saved_network_location,
-                        network_name         = network_name
-                    )
-
-
-            if self.training_function == "resilient backpropagation":
-                train_resilient_backpropagation()
-            elif self.training_function == "backpropagation":
-                train_backpropagation()
-
-
-            if view_NN_training == True:
-                print_test( network, prep_data[2], self.cost_function )
-            # If you used a preprocessor during the training phase, the
-            # preprocessor must also be used on the data used during prediction.
-
-            combine_lists = list(zip(X_test_data, y_test_data))
-
-            shuffle(combine_lists)
-
-            X_test_data, y_test_data = zip(*combine_lists)
-
-            predict_dataset = [
-                    # Instance( [input values] )
-                    Instance( Xrow ) for Xrow in X_test_data
-                ]
-
-            correct_output_values = [( yrow[0 : self.size_of_output] ) for yrow in y_test_data]
-            print ('')
-            print ('these are the correct output values')
-            print (correct_output_values)
-            print ('')
-
-            original_results = [( yrow[0 : self.size_of_output] ) for yrow in y_test_data]
-
-            # preprocess the dataset
-            preprocessor    = construct_preprocessor( predict_dataset, [replace_nan, standarize] )
-            predict_dataset = preprocessor( predict_dataset )
-
-            # feed the instances to the network
-            print ('these are the neural net predictions')
-            results =  network.predict( predict_dataset ) # return a 2D NumPy array [n_samples, n_outputs]
-            print ([result[0 : self.size_of_output] for result in results])
-
-            rounded_results = []
-            for value_group in results:
-                if self.size_of_output == 1:
-                    rounded_results.append([round(value_group, decimal_rounding_for_prediction)])
-                else:
-                    grouping = []
-                    for value in value_group:
-                        grouping.append(round(value, decimal_rounding_for_prediction))
-                    rounded_results.append(grouping)
-            print ('')
-            print ('these are the rounded predictions')
-            print (rounded_results)
-            print ('')
-
-            accuracy_percent = []
-            accuracy_deviation = []
-            for (original_group, NNpred_group) in zip(original_results, rounded_results):
-                if len(original_group) == 1:
-                    if original_group[0] < NNpred_group[0]:
-                        accuracy_percent.append(original_group[0] / NNpred_group[0])
-                        accuracy_deviation.append( NNpred_group[0] - original_group[0])
-                    else:
-                        accuracy_percent.append( NNpred_group[0] / original_group[0])
-                        accuracy_deviation.append(original_group[0] - NNpred_group[0])
-                else:
-                    for (original, NNpred) in zip(original_group, NNpred_group):
-                        if original_group[0] < NNpred_group[0]:
-                            accuracy_percent.append(original_group[0] / NNpred_group[0])
-                            accuracy_deviation.append( NNpred_group[0] - original_group[0])
-                        else:
-                            accuracy_percent.append( NNpred_group[0] / original_group[0])
-                            accuracy_deviation.append(original_group[0] - NNpred_group[0])
-
-            perc_accuracy = round((sum(accuracy_percent) / float(len(accuracy_percent))), 3) * 100
-
-            print ('percentage accuracy: ' + str(perc_accuracy) + "%")
-            print ("Average deviation: " + str(round(np.average(accuracy_deviation), decimal_rounding_for_prediction)))
-
-            return correct_output_values, results, rounded_results
+        return correct_output_values, results, rounded_results
 
 def run_ANN(train_dataset_location, test_dataset_location, size_of_output, decimal_rounding_for_prediction, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training):
-    NN = NeuralNetwork(train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error)
+    NN = NeuralNetwork(train_dataset_location, test_dataset_location, size_of_output, num_of_neurons, cost_function, neuron_function, activation_function, training_function, max_iterations, max_error, weight_step_min, weight_step_max, start_step, learn_max, learn_min, learning_rate, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training, decimal_rounding_for_prediction)
+
     NN.prep_data(NN.X, NN.y)
-    return NN.train_and_predict(NN.X, NN.y, NN.X_test_data, NN.y_test_data, weight_step_min, weight_step_max, learn_max, learn_min, learning_rate, start_step, momentum_factor, hidden_layer_dropout, input_layer_dropout, save_trained_network, network_name, saved_network_location, use_saved_network, view_NN_training, decimal_rounding_for_prediction)
+    trained_network = NN.train_neural_net()
+    predictions = NN.predict_output_values(trained_network)
+    return predictions
+

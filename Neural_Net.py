@@ -1,7 +1,7 @@
 import ANN.ANN_Main_Settings as ANN_Main
 
 
-# make sure files are in .csv format and ConcussvsNoConcussTestData
+# make sure files are in .csv format
 # the FIRST COLUMN should be the RESULT / DATA TO PREDICT
 train_dataset_location = '/filepath/.../train_dataset.csv'
 test_dataset_location = '/filepath/.../test_dataset.csv'
